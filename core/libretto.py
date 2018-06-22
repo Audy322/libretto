@@ -128,6 +128,9 @@ class LogReader(object):
         self.root = root
         self.filenameLog = kwargs.get('filenameLog', None)
 
+        self.ClearDisplay = kwargs.get('ClearDisplay', False)
+        ''' By default don't display Filenames and directory '''
+
         mainstyle = ttk.Style()
 #         mainstyle.theme_use(mainstyle.theme_names()[0])
         mainstyle.configure('My.TFrame',
@@ -147,14 +150,14 @@ class LogReader(object):
                            background='gray50',
                            foreground='gray97',
                            font="Monospace 12")
-        root.title("Log reader v0.1")
 
         Chkstyle = ttk.Style()
         Chkstyle.configure('My.TLabel',
                            background='gray50',
                            foreground='gray97',
                            font="Monospace 12")
-        root.title("Libretto")
+
+        root.title("Libretto v0.1")
 
         self.initParam()
 
@@ -178,8 +181,10 @@ class LogReader(object):
         # Frame fDisp
         #======================================================================
         # Display stdout
+        self.customFont = tkFont.Font(
+            family="Helvetica", size=12)
         self.text_area = ScrolledText(
-            self.fDisp, font="Helvetica 12", undo=True, background='gray20', foreground="gray92")
+            self.fDisp, font=self.customFont, undo=True, background='gray20', foreground="gray92")
         self.text_area.pack(expand=True, fill='both')
         self.text_area.configure(state='normal')
         self.text_area.yview(END)
@@ -215,9 +220,6 @@ class LogReader(object):
 
         # stdout redirection
         sys.stdout = StdoutRedirector(self.text_area)
-        #======================================================================
-        # Frame fParam
-        #======================================================================
 
         #======================================================================
         # Parameters
@@ -228,21 +230,56 @@ class LogReader(object):
             self.fParam, text="Select the log file", style='My.TButton')
         SelectLogFileBtn.grid(row=0, column=0)
         SelectLogFileBtn.configure(command=lambda: self.set_LogFile())
+        Label = ttk.Label(self.fParam, text="", style='My.TLabel')
+        Label.grid(row=1, column=0)
 
         # Refresh button
         SelectLogFileBtn = ttk.Button(
             self.fParam, text="Refresh", style='My.TButton')
-        SelectLogFileBtn.grid(row=1, column=0)
+        SelectLogFileBtn.grid(row=2, column=0)
         SelectLogFileBtn.configure(command=lambda: self.RefreshLog())
+
+        Label = ttk.Label(self.fParam, text="", style='My.TLabel')
+        Label.grid(row=9, column=0)
 
         # Display Files button
         ChkBtnDispFilenames = ttk.Checkbutton(
-            self.fParam, text="DispFilenames", style='My.TCheckbutton')
+            self.fParam, text="Display the filenames", style='My.TCheckbutton')
         ChkBtnDispFilenames.grid(row=10, column=0)
         ChkBtnDispFilenames.configure(variable=self.Entry_DispFilenames,
                                       command=lambda: self.set_DispFilenames())
 
+        # Display Comments button
+        ChkBtnDispCom = ttk.Checkbutton(
+            self.fParam, text="Display the comments", style='My.TCheckbutton')
+        ChkBtnDispCom.grid(row=11, column=0)
+        ChkBtnDispCom.configure(variable=self.Entry_DispComment,
+                                command=lambda: self.set_DispComment())
+
+        # Display Directories button
+        ChkBtnDispDir = ttk.Checkbutton(
+            self.fParam, text="Display the directories", style='My.TCheckbutton')
+        ChkBtnDispDir.grid(row=12, column=0)
+        ChkBtnDispDir.configure(variable=self.Entry_DispDir,
+                                command=lambda: self.set_DispDir())
+
+        # Display Warnings button
+        ChkBtnDispWarn = ttk.Checkbutton(
+            self.fParam, text="Display the warnings", style='My.TCheckbutton')
+        ChkBtnDispWarn.grid(row=13, column=0)
+        ChkBtnDispWarn.configure(variable=self.Entry_DispWarn,
+                                 command=lambda: self.set_DispWarn())
+
+        # Display Warnings button
+        ChkBtnDispParam = ttk.Checkbutton(
+            self.fParam, text="Display the parameters", style='My.TCheckbutton')
+        ChkBtnDispParam.grid(row=14, column=0)
+        ChkBtnDispParam.configure(variable=self.Entry_DispParam,
+                                  command=lambda: self.set_DispParam())
+
         self.RefreshLog()
+        if self.ClearDisplay:
+            self.UpdateAllDisp()
 
     def printExample(self):
         return ["=========================================",
@@ -252,8 +289,8 @@ class LogReader(object):
                 "    ~ A little bit different of this sub-Title",
                 "        *  And guess what, now a sub-sub-Title ! ",
                 "            # right now I am commenting my example",
-                "            p_dodo is a parameter",
-                "            Blablabla...",
+                "            p_Dodo is a parameter",
+                "            BlablablaAudyIsTheBestBlablabla...",
                 "            X_something is a most of the time the filename of " +
                 " an MRI image or created",
                 "            Z_something is the filename of a file which is not an " +
@@ -264,19 +301,6 @@ class LogReader(object):
 
     def initParam(self):
         self.logExtension = ("*.txt", "*.log")
-
-        #======================================================================
-        #
-        #
-        #     WARNING TO CHANGE
-        #
-        #
-        self.OriginalDirectory = "/home/odelin/Work/HD_STUDY_2017/DAVID_WOODARD_092917/pipCasl/pypCaslSession_PCASL1_2018_04_17_14_45/"
-        # self.OriginalDirectory = os.getcwd()
-        #
-        #
-        #
-        #======================================================================
 
         self.LogMessage = None
         self.listHideBal = []
@@ -308,25 +332,68 @@ class LogReader(object):
         self.DefaultValidate = DefaultValidate
         self.DefaultParameter = DefaultParameter
 
-        self.DispFilenames = True
-        self.Entry_DispFilenames = IntVar(value=1)
+        self.DispWarn = True
+        self.Entry_DispWarn = IntVar(value=1)
+        self.DispParam = True
+        self.Entry_DispParam = IntVar(value=1)
+
+        if self.ClearDisplay:
+            self.DispFilenames = False
+            self.Entry_DispFilenames = IntVar(value=0)
+            self.DispComment = False
+            self.Entry_DispComment = IntVar(value=0)
+            self.DispDir = False
+            self.Entry_DispDir = IntVar(value=0)
+        else:
+            self.DispFilenames = True
+            self.Entry_DispFilenames = IntVar(value=1)
+            self.DispComment = True
+            self.Entry_DispComment = IntVar(value=1)
+            self.DispDir = True
+            self.Entry_DispDir = IntVar(value=1)
+
+    def DispOrHide(self, DispSomething, listHideBal):
+        if DispSomething:
+            # update the balise to hide list
+            listHideBal = [e for e in self.listHideBal if e not in listHideBal]
+        else:
+            listHideBal = listHideBal + self.listHideBal
+        self.listHideBal = listHideBal
+        self.resetDisp()
+        self.watchLog(bal=self.listHideBal)
 
     def set_DispFilenames(self):
         self.DispFilenames = self.Entry_DispFilenames.get()
-        listbal = [self.DefaultFileNameMRIImage,
-                   self.DefaultFileNameMatrix,
-                   self.DefaultFileNameMRIMasks,
-                   self.DefaultFileNameOther]
+        listbal0 = [self.DefaultFileNameMRIImage,
+                    self.DefaultFileNameMatrix,
+                    self.DefaultFileNameMRIMasks,
+                    self.DefaultFileNameOther]
+        self.DispOrHide(self.DispFilenames, listbal0)
 
-        if not self.DispFilenames:
-            pass
-        else:
-            listbal = [e for e in self.listHideBal if e not in listbal]
+    def set_DispDir(self):
+        self.DispDir = self.Entry_DispDir.get()
+        listbal0 = [self.DefaultDirectory]
+        self.DispOrHide(self.DispDir, listbal0)
 
-        self.listHideBal = listbal
+    def set_DispComment(self):
+        self.DispComment = self.Entry_DispComment.get()
+        listbal0 = [self.DefaultComment]
+        self.DispOrHide(self.DispComment, listbal0)
 
-        self.resetDisp()
-        self.watchLog(bal=self.listHideBal)
+    def set_DispWarn(self):
+        self.DispWarn = self.Entry_DispWarn.get()
+        listbal0 = [self.DefaultWarning]
+        self.DispOrHide(self.DispWarn, listbal0)
+
+    def set_DispParam(self):
+        self.DispParam = self.Entry_DispParam.get()
+        listbal0 = [self.DefaultParameter]
+        self.DispOrHide(self.DispParam, listbal0)
+
+    def UpdateAllDisp(self):
+        self.set_DispComment()
+        self.set_DispDir()
+        self.set_DispFilenames()
 
     def set_LogFile(self):
         self.filenameLog = self.OpenFile(
@@ -335,11 +402,10 @@ class LogReader(object):
 
     def filterLog(self, str0, bal):
         ''' delete the lines which contain a specific balise '''
-        if not bal:
-            return str0
         if type(bal) != list:
             if type(bal) != str:
-                return str0
+                if not bal:
+                    return str0
             else:
                 bal = [bal]
         try:
@@ -368,7 +434,7 @@ class LogReader(object):
                 print l
 
     def resetDisp(self):
-        ''' load a log '''
+        ''' '''
         self.text_area.delete('1.0', END)
 
     def RefreshLog(self):
@@ -393,16 +459,15 @@ class LogReader(object):
         exit()
 
 
-def Call_Reader(fileLog, fullscreen=False):
+def Call_Reader(fileLog=None, fullscreen=False, ClearDisplay=False):
     root = Tk()
     if fullscreen:
-        #         root.attributes('-fullscreen', True)
         w, h = root.winfo_screenwidth(), root.winfo_screenheight()
         root.geometry("%dx%d+0+0" % (w, h))
-    my_gui = LogReader(root, filenameLog=fileLog)
+    my_gui = LogReader(root, filenameLog=fileLog, ClearDisplay=ClearDisplay)
     root.protocol("WM_DELETE_WINDOW", my_gui.close)
     root.mainloop()
 
 
 if __name__ == '__main__':
-    Call_Reader(None)
+    Call_Reader(fileLog=None, fullscreen=False, ClearDisplay=False)

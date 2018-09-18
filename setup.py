@@ -22,7 +22,7 @@ setup(
     url="",
     download_url='',
     packages=find_packages(exclude=('tests', 'docs')),
-    scripts=['Libretto'],
+    scripts=['libretto'],
     long_description=read('README.md'),
     license=read('LICENSE')
 )

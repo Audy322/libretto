@@ -13,16 +13,16 @@ def read(fname):
 
 
 setup(
-    name="libretto",
+    name="Libretto",
     version="0.0.1",
     author="Odelin Charron",
     author_email="audy322@hotmail.fr",
     description="Log reader",
-    keywords="libretto",
+    keywords="Libretto",
     url="",
     download_url='',
     packages=find_packages(exclude=('tests', 'docs')),
-    scripts=['libretto'],
+    scripts=['Libretto'],
     long_description=read('README.md'),
     license=read('LICENSE')
 )

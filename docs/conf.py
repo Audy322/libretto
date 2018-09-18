@@ -39,7 +39,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'libretto'
+project = u'Libretto'
 copyright = u'2018, Odelin Charron'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -182,7 +182,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ('index', 'libretto.tex', u'libretto Documentation',
+    ('index', 'Libretto.tex', u'Libretto Documentation',
      u'Odelin Charron', 'manual'),
 ]
 
@@ -212,7 +212,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'libretto', u'libretto Documentation',
+    ('index', 'Libretto', u'Libretto Documentation',
      [u'Odelin Charron'], 1)
 ]
 
@@ -226,7 +226,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'sample', u'libretto Documentation',
+    ('index', 'sample', u'Libretto Documentation',
      u'Odelin Charron', 'sample', 'One line description of project.',
      'Miscellaneous'),
 ]

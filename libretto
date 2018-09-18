@@ -2,7 +2,7 @@
 
 import argparse
 import sys
-from libretto import libretto
+from Libretto import libretto
 
 sys.setrecursionlimit(20000)
 
